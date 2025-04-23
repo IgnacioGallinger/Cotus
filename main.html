@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventConnect</title>
+    <style>
+        /* --- Estilos Generales --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        /* --- Header --- */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 100;
+        }
+
+        /* --- Reloj y Fecha --- */
+        .time-date-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 200px;
+        }
+        .time {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        .date {
+            font-size: 14px;
+            color: #666;
+        }
+        .toggle-btn {
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 15px;
+            padding: 4px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .toggle-btn:hover {
+            background: #e0e0e0;
+        }
+
+        /* --- Buscador --- */
+        .search-container {
+            position: relative;
+            flex-grow: 1;
+            max-width: 500px;
+            margin: 0 20px;
+        }
+        .search-bar {
+            width: 100%;
+            padding: 10px 20px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        .search-bar:focus {
+            border-color: #8a2be2;
+            box-shadow: 0 2px 8px rgba(138, 43, 226, 0.2);
+        }
+
+        /* --- Resultados de Búsqueda --- */
+        .search-results {
+            position: absolute;
+            top: 50px;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            max-height: 400px;
+            overflow-y: auto;
+            display: none;
+            z-index: 99;
+            border: 1px solid #eee;
+            border-top: none;
+        }
+        .search-result-item {
+            padding: 12px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        .search-result-item:hover {
+            background: #f9f4ff;
+        }
+        .result-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #8a2be2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        .result-info {
+            flex-grow: 1;
+        }
+        .result-name {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+        .result-desc {
+            font-size: 13px;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .no-results {
+            padding: 20px;
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+        }
+
+        /* --- Contenido Principal --- */
+        .main-content {
+            padding: 30px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* --- Tarjeta de Grupo (ejemplo) --- */
+        .group-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            max-width: 400px;
+            margin: 0 auto 30px auto; /* Añadir margen inferior */
+            transition: transform 0.3s;
+        }
+        .group-card:hover {
+            transform: translateY(-5px);
+        }
+        .banner-container {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            overflow: hidden;
+        }
+        .group-banner {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: linear-gradient(135deg, #8a2be2, #6a1b9a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .banner-tooltip {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 14px;
+        }
+        .banner-container:hover .banner-tooltip {
+            opacity: 1;
+        }
+        .group-content {
+            padding: 20px;
+        }
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .group-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+        }
+        .join-btn {
+            background: #6a1b9a;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .join-btn:hover {
+            background: #5a0d8a;
+            transform: scale(1.05);
+        }
+        .group-meta {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* --- Crear Grupo Form (NUEVOS ESTILOS) --- */
+        .create-group-form {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            max-width: 500px;
+            margin: 30px auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .create-group-form h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #6a1b9a;
+            text-align: center;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        .form-group input[type="text"],
+        .form-group textarea,
+        .form-group input[type="color"] {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .form-group input[type="text"]:focus,
+        .form-group textarea:focus,
+        .form-group input[type="color"]:focus {
+            border-color: #8a2be2;
+            outline: none;
+            box-shadow: 0 0 5px rgba(138, 43, 226, 0.1);
+        }
+        .form-group textarea {
+            resize: vertical; /* Permite redimensionar verticalmente */
+            min-height: 80px;
+        }
+         .form-group input[type="color"] {
+             padding: 5px; /* Reducir padding para el color picker */
+             height: 40px;
+         }
+        .create-group-form button {
+            background: #6a1b9a;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        .create-group-form button:hover {
+            background: #5a0d8a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* --- Efectos --- */
+        .highlight {
+            background: #fffacd;
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
+            .header {
+                flex-wrap: wrap;
+                gap: 10px;
+                padding: 10px;
+            }
+            .time-date-container {
+                order: 1;
+            }
+            .search-container {
+                order: 3;
+                width: 100%;
+                margin: 10px 0 0 0;
+            }
+            .user-account {
+                order: 2;
+                margin-left: auto;
+            }
+             .create-group-form {
+                 margin: 20px 10px;
+                 padding: 15px;
+             }
+             .form-group input[type="text"],
+             .form-group textarea,
+             .form-group input[type="color"],
+             .create-group-form button {
+                 font-size: 14px;
+             }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="time-date-container">
+            <div>
+                <div class="time" id="time">00:00:00 AM</div>
+                <div class="date" id="date">08 de Abril (08/04)</div>
+            </div>
+            <button class="toggle-btn" id="toggleBtn">Simplificar</button>
+        </div>
+
+        <div class="search-container" id="searchContainer">
+            <input type="text" class="search-bar" id="searchInput" placeholder="Buscar grupos...">
+            <div class="search-results" id="searchResults"></div>
+        </div>
+
+        <div class="user-account">Cuenta</div>
+    </header>
+
+    <main class="main-content">
+
+        <div class="create-group-form">
+            <h3>Crear Nuevo Grupo</h3>
+            <div class="form-group">
+                <label for="newGroupName">Nombre del Grupo:</label>
+                <input type="text" id="newGroupName" required>
+            </div>
+            <div class="form-group">
+                <label for="newGroupDescription">Descripción:</label>
+                <textarea id="newGroupDescription" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="newGroupBannerColor">Color del Banner:</label>
+                <input type="color" id="newGroupBannerColor" value="#8a2be2"> </div>
+            <button id="createGroupBtn">Crear Grupo</button>
+        </div>
+
+
+        <div class="group-card">
+            <div class="banner-container">
+                <div class="group-banner" id="groupBanner">GRUPO</div>
+                <div class="banner-tooltip" id="groupTooltip">Descripción del grupo</div>
+            </div>
+            <div class="group-content">
+                <div class="group-header">
+                    <h2 class="group-name" id="groupName">Nombre del Grupo</h2>
+                    <button class="join-btn">Unirse</button>
+                </div>
+                <div class="group-meta">
+                    <div class="meta-item">
+                        <span>👥</span>
+                        <span id="groupMembers">0 miembros</span>
+                    </div>
+                    <div class="meta-item">
+                        <span>📅</span>
+                        <span id="groupDate">Creado el 01/01/2023</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        </main>
+
+    <script>
+        // ========== BASE DE DATOS (Inicial, si no hay nada en localStorage) ==========
+        // Esta es la base de datos por defecto. Será sobrescrita si hay datos en localStorage.
+        let grupos = [
+            {
+                id: 1,
+                nombre: "Grupo de Prueba Inicial 1",
+                descripcion: "Este es el primer grupo de prueba precargado.",
+                bannerColor: "#8a2be2",
+                miembros: 15,
+                fecha_creacion: "2023-11-15",
+                activo: true,
+                ubicacion: "Ubicación Inicial A"
+            },
+            {
+                id: 2,
+                nombre: "Grupo de Prueba Inicial 2",
+                descripcion: "Este es el segundo grupo de prueba precargado.",
+                bannerColor: "#1b5e20",
+                miembros: 42,
+                fecha_creacion: "2023-09-10",
+                activo: true,
+                ubicacion: "Ubicación Inicial B"
+            }
+        ];
+
+        // ========== FUNCIONES DE PERSISTENCIA (usando localStorage) ==========
+
+        // Guarda el array 'grupos' en localStorage
+        function saveGroupsToLocalStorage() {
+            try {
+                const gruposString = JSON.stringify(grupos);
+                localStorage.setItem('eventConnectGroups', gruposString);
+                console.log('Grupos guardados en localStorage.');
+            } catch (e) {
+                console.error('Error al guardar grupos en localStorage:', e);
+                alert('No se pudieron guardar los grupos. localStorage puede estar lleno o deshabilitado.');
+            }
+        }
+
+        // Carga el array 'grupos' desde localStorage
+        function loadGroupsFromLocalStorage() {
+            try {
+                const gruposString = localStorage.getItem('eventConnectGroups');
+                if (gruposString) {
+                    const gruposFromStorage = JSON.parse(gruposString);
+                     // Opcional: fusionar con grupos iniciales si quieres que los iniciales siempre estén
+                     // Pero para simular creación, es mejor que localStorage lo sobrescriba.
+                    if (Array.isArray(gruposFromStorage)) {
+                        grupos = gruposFromStorage; // Sobrescribe los grupos iniciales con los guardados
+                        console.log('Grupos cargados desde localStorage.');
+                    } else {
+                        console.warn('Datos en localStorage no son un array. Usando grupos iniciales.');
+                        // Si los datos no son válidos, usamos el array inicial
+                    }
+                } else {
+                    console.log('No se encontraron grupos en localStorage. Usando grupos iniciales.');
+                    // Si no hay datos guardados, usamos el array inicial y lo guardamos para la próxima
+                    saveGroupsToLocalStorage();
+                }
+            } catch (e) {
+                console.error('Error al cargar grupos desde localStorage:', e);
+                 console.log('Usando grupos iniciales debido a un error de carga.');
+                 // Si hay un error de parseo u otro, usamos el array inicial
+            }
+        }
+
+
+        // ========== FUNCIONES PRINCIPALES ==========
+        // La función formatDate y actualizarGrupo siguen siendo las mismas si quieres usarlas
+        // para la tarjeta de ejemplo o en otro lugar.
+
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('es-ES', options);
+        }
+
+        function actualizarGrupo(grupo) {
+            // Esta función ya no es central para la búsqueda que redirige,
+            // pero puede usarse para mostrar un grupo inicial o en otro contexto.
+            const groupNameEl = document.getElementById('groupName');
+            const groupBannerEl = document.getElementById('groupBanner');
+            const groupTooltipEl = document.getElementById('groupTooltip');
+            const groupMembersEl = document.getElementById('groupMembers');
+            const groupDateEl = document.getElementById('groupDate');
+
+            if (groupNameEl && groupBannerEl && groupTooltipEl && groupMembersEl && groupDateEl && grupo) {
+                 groupNameEl.textContent = grupo.nombre;
+                 groupBannerEl.textContent = grupo.nombre.substring(0, Math.min(5, grupo.nombre.length)); // Asegurar no exceder longitud
+                 groupBannerEl.style.background = grupo.bannerColor;
+                 groupTooltipEl.textContent = grupo.descripcion;
+                 groupMembersEl.textContent = `${grupo.miembros} miembros`;
+                 groupDateEl.textContent = `Creado el ${formatDate(grupo.fecha_creacion)}`;
+            }
+        }
+
+
+        // ===== FUNCIÓN DESTACAR COINCIDENCIAS (Copiado) =====
+        function destacarCoincidencias(texto, busqueda) {
+            if (!busqueda || !texto) return texto;
+
+            const term = busqueda.toLowerCase();
+            const textoLower = texto.toLowerCase();
+            let resultado = '';
+            let lastIndex = 0;
+
+            // Usar regex con boundary para evitar dividir palabras
+            const regex = new RegExp(`(^|\\s)(${term})([^a-z0-9]|\\s|$)`, 'gi');
+             let match;
+
+             while ((match = regex.exec(textoLower)) !== null) {
+                 const fullMatch = match[0]; // incluye el espacio/puntuacion si existe
+                 const termMatch = match[2]; // solo el término buscado
+                 const matchIndex = match.index + (match[1] ? match[1].length : 0); // Ajustar índice si hay espacio antes
+
+                 resultado += texto.substring(lastIndex, matchIndex);
+                 // Resaltar solo el término encontrado dentro de la palabra (o palabra completa si coincide)
+                 resultado += `<span class="highlight">${texto.substring(matchIndex, matchIndex + termMatch.length)}</span>`;
+                 lastIndex = matchIndex + termMatch.length; // Continuar después del término resaltado
+             }
+             resultado += texto.substring(lastIndex);
+
+
+            // Fallback a la lógica anterior si la regex es muy compleja o quieres resaltar sub-palabras
+            // if (resultado === '' && textoLower.includes(term)) {
+            //     // Aquí podrías poner una lógica más simple si la regex no funciona como esperas
+            //     // Pero la regex con boundaries es mejor para no dividir palabras
+            // } else if (resultado === '') {
+            //     return texto; // Si no se encontró con regex y no contiene el término, retorna original
+            // }
+
+             // Si la regex no encontró nada, volvemos a la lógica anterior más simple
+             // Esta es una versión corregida para no dividir palabras con la lógica original
+             if (!resultado && textoLower.includes(term)) {
+                  resultado = ''; // Resetear resultado
+                  lastIndex = 0;
+                  let index = textoLower.indexOf(term);
+                   while (index >= 0) {
+                       // Encontrar inicio de palabra - ahora incluyendo algunos signos de puntuación
+                       let inicioPalabra = index;
+                       while (inicioPalabra > 0 && !/[\s,.!?;:]/.test(texto[inicioPalabra - 1])) {
+                           inicioPalabra--;
+                       }
+
+                       // Encontrar fin de palabra - ahora incluyendo algunos signos de puntuación
+                       let finPalabra = index + term.length;
+                       while (finPalabra < texto.length && !/[\s,.!?;:]/.test(texto[finPalabra])) {
+                           finPalabra++;
+                       }
+
+                       // Añadir texto antes de la coincidencia
+                       resultado += texto.substring(lastIndex, inicioPalabra);
+
+                       // Resaltar palabra completa o parte que contiene la coincidencia
+                       const palabraCompleta = texto.substring(inicioPalabra, finPalabra);
+                       resultado += `<span class="highlight">${palabraCompleta}</span>`;
+
+                       lastIndex = finPalabra;
+                       index = textoLower.indexOf(term, lastIndex);
+                   }
+                   resultado += texto.substring(lastIndex);
+             } else if (!resultado && !textoLower.includes(term)) {
+                 return texto; // Si no se encontró de ninguna manera, retorna original
+             }
+             // Preferir la versión de regex si encontró algo
+             if (new RegExp(`(^|\\s)(${term})([^a-z0-9]|\\s|$)`, 'gi').test(textoLower)) {
+                 // Si la regex original *sí* encuentra coincidencias de palabra completa, usar ese resultado
+                 // Esto es un poco complejo, un enfoque más simple es elegir uno u otro método.
+                 // Dejemos la versión anterior corregida que parece funcionar mejor para sub-palabras también.
+                  resultado = ''; // Resetear resultado para usar la segunda lógica
+                  lastIndex = 0;
+                  let index = textoLower.indexOf(term);
+                   while (index >= 0) {
+                       let inicioPalabra = index;
+                       while (inicioPalabra > 0 && !/[\s,.!?;:]/.test(texto[inicioPalabra - 1])) {
+                           inicioPalabra--;
+                       }
+                       let finPalabra = index + term.length;
+                       while (finPalabra < texto.length && !/[\s,.!?;:]/.test(texto[finPalabra])) {
+                           finPalabra++;
+                       }
+                       resultado += texto.substring(lastIndex, inicioPalabra);
+                       const palabraCompleta = texto.substring(inicioPalabra, finPalabra);
+                       resultado += `<span class="highlight">${palabraCompleta}</span>`;
+                       lastIndex = finPalabra;
+                       index = textoLower.indexOf(term, lastIndex);
+                   }
+                   resultado += texto.substring(lastIndex);
+
+             } else if (resultado === '') {
+                 return texto; // Si ninguno encontró nada, retorna original
+             }
+
+
+            return resultado;
+        }
+
+
+        // ========== BUSCADOR ==========
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.trim();
+            const searchResults = document.getElementById('searchResults');
+
+            // Vaciar resultados si la búsqueda está vacía o es muy corta
+             if (searchTerm.length <= 1) { // Cambiado a <= 1
+                 searchResults.style.display = 'none';
+                 searchResults.innerHTML = '';
+                 return; // Salir de la función
+             }
+
+            const resultados = grupos.filter(grupo => {
+                // Buscamos en nombre y descripción
+                return grupo.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                       grupo.descripcion.toLowerCase().includes(searchTerm.toLowerCase());
+            });
+
+            mostrarResultadosBusqueda(resultados, searchTerm);
+        });
+
+        function mostrarResultadosBusqueda(resultados, terminoBusqueda) {
+            const searchResults = document.getElementById('searchResults');
+            searchResults.innerHTML = ''; // Limpiar resultados anteriores
+
+            if (resultados.length > 0) {
+                resultados.forEach(grupo => {
+                    const item = document.createElement('div');
+                    item.className = 'search-result-item';
+
+                    const avatar = document.createElement('div');
+                    avatar.className = 'result-avatar';
+                    // Usamos las dos primeras letras para el avatar
+                    avatar.textContent = grupo.nombre.substring(0, Math.min(2, grupo.nombre.length)).toUpperCase();
+                    avatar.style.background = grupo.bannerColor; // Usar color del grupo para el avatar
+
+                    const info = document.createElement('div');
+                    info.className = 'result-info';
+
+                    // Destacar coincidencias en nombre y descripción en los resultados
+                    const highlightedName = destacarCoincidencias(grupo.nombre, terminoBusqueda);
+                    // Limitar descripción en la vista de resultados y destacar
+                    const shortDescription = grupo.descripcion.substring(0, 60) + (grupo.descripcion.length > 60 ? '...' : '');
+                    const highlightedDesc = destacarCoincidencias(shortDescription, terminoBusqueda);
+
+                    info.innerHTML = `
+                        <div class="result-name">${highlightedName}</div>
+                        <div class="result-desc">${highlightedDesc}</div>
+                    `;
+
+                    item.appendChild(avatar);
+                    item.appendChild(info);
+
+                    // Navegar a group.html al hacer clic
+                    item.addEventListener('click', () => {
+                        window.location.href = `group.html?id=${grupo.id}`;
+                    });
+
+                    searchResults.appendChild(item);
+                });
+                searchResults.style.display = 'block'; // Mostrar el contenedor de resultados
+            } else {
+                // No se encontraron resultados, mostrar mensaje
+                searchResults.innerHTML = '<div class="no-results">No se encontraron grupos</div>';
+                searchResults.style.display = 'block'; // Mostrar el contenedor con el mensaje
+            }
+        }
+
+        // Cerrar resultados al hacer clic fuera
+        document.addEventListener('click', function(e) {
+            const searchContainer = document.getElementById('searchContainer');
+            const searchResults = document.getElementById('searchResults');
+            // Asegurarse de que el clic no fue dentro del contenedor de búsqueda
+            if (!searchContainer.contains(e.target)) {
+                searchResults.style.display = 'none';
+                 // Opcional: Limpiar el input al cerrar los resultados si quieres
+                 // document.getElementById('searchInput').value = '';
+            }
+        });
+
+
+        // ========== CREAR GRUPO (NUEVA LÓGICA) ==========
+        document.getElementById('createGroupBtn').addEventListener('click', function() {
+            const nameInput = document.getElementById('newGroupName');
+            const descInput = document.getElementById('newGroupDescription');
+            const colorInput = document.getElementById('newGroupBannerColor');
+
+            const nombre = nameInput.value.trim();
+            const descripcion = descInput.value.trim();
+            const bannerColor = colorInput.value;
+
+            if (!nombre || !descripcion) {
+                alert('Por favor, completa el nombre y la descripción del grupo.');
+                return;
+            }
+
+            // Generar un ID único simple (usando timestamp, no ideal para app real)
+            // Una mejor forma sería encontrar el ID máximo actual y sumarle 1.
+            const newId = grupos.length > 0 ? Math.max(...grupos.map(g => g.id), 0) + 1 : 1;
+             // Asegurarse de que el ID es un número
+             const finalId = typeof newId === 'number' && !isNaN(newId) ? newId : Date.now();
+
+
+            const newGroup = {
+                id: finalId, // ID único
+                nombre: nombre,
+                descripcion: descripcion,
+                bannerColor: bannerColor,
+                miembros: 1, // El creador es el primer miembro
+                fecha_creacion: new Date().toISOString().split('T')[0], // Fecha actual en formato YYYY-MM-DD
+                activo: true,
+                ubicacion: "No especificada" // Ubicación por defecto al crear
+                // Podrías añadir más campos si tu formulario los tuviera
+            };
+
+            grupos.push(newGroup); // Añadir el nuevo grupo al array en memoria
+
+            saveGroupsToLocalStorage(); // Guardar el array actualizado en localStorage
+
+            alert(`Grupo "${nombre}" creado exitosamente!`);
+
+            // Limpiar el formulario
+            nameInput.value = '';
+            descInput.value = '';
+            colorInput.value = '#8a2be2'; // Restaurar color por defecto
+
+            // Opcional: podrías actualizar la lista de grupos mostrada en la página
+            // (si tuvieras una sección para listarlos todos)
+            // O simplemente sugerir al usuario que lo busque.
+
+            // Puedes redirigir a la página del nuevo grupo si quieres:
+            // window.location.href = `group.html?id=${newGroup.id}`;
+        });
+
+
+        // ========== RELOJ (Copiado) ==========
+        let isSimplified = false;
+
+        function updateTimeAndDate() {
+            const now = new Date();
+            let hours = now.getHours();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours || 12;
+
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+
+            const timeElement = document.getElementById('time');
+            const dateElement = document.getElementById('date');
+
+            timeElement.textContent = isSimplified
+                ? `${String(hours).padStart(2, '0')}:${minutes} ${ampm}`
+                : `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
+
+            dateElement.style.display = isSimplified ? 'none' : 'block';
+
+            if (!isSimplified) {
+                const options = { month: 'long' };
+                let monthName = new Intl.DateTimeFormat('es-ES', options).format(now);
+                monthName = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+                const day = String(now.getDate()).padStart(2, '0');
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                dateElement.textContent = `${day} de ${monthName} (${day}/${month})`;
+            }
+        }
+
+        document.getElementById('toggleBtn').addEventListener('click', () => {
+            isSimplified = !isSimplified;
+            document.getElementById('toggleBtn').textContent = isSimplified ? 'Ampliar' : 'Simplificar';
+            updateTimeAndDate();
+        });
+
+        // ========== INICIALIZACIÓN ==========
+        document.addEventListener('DOMContentLoaded', () => {
+            // Cargar grupos desde localStorage al iniciar
+            loadGroupsFromLocalStorage();
+
+            // Opcional: Mostrar el primer grupo cargado en la tarjeta de ejemplo
+             if (grupos.length > 0) {
+                actualizarGrupo(grupos[0]);
+             }
+
+
+            // Iniciar reloj
+            updateTimeAndDate();
+            setInterval(updateTimeAndDate, 1000);
+        });
+    </script>
+</body>
+</html>

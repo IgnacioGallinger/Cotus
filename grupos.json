@@ -1,0 +1,18 @@
+[
+    {
+        "id": 1,
+        "nombre": "Prueba",
+        "descripcion": "Esto es una Prueba...",
+        "banner": "assets/banners/grupo-prueba.jpg",
+        "miembros": 0,
+        "fecha_creacion": "2023-11-15"
+    },
+    {
+        "id": 2,
+        "nombre": "Fútbol Sabatino",
+        "descripcion": "Partidos los sábados por la mañana",
+        "banner": "assets/banners/futbol-sabatino.jpg",
+        "miembros": 12,
+        "fecha_creacion": "2023-10-20"
+    }
+]

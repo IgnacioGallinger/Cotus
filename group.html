@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventConnect - Detalles del Grupo</title> <style>
+        /* --- Estilos Generales (copiados de main.html) --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        /* --- Header (copiado de main.html) --- */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 100;
+        }
+
+        /* --- Reloj y Fecha (copiado de main.html) --- */
+        .time-date-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 200px;
+        }
+        .time {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        .date {
+            font-size: 14px;
+            color: #666;
+        }
+        .toggle-btn {
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 15px;
+            padding: 4px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .toggle-btn:hover {
+            background: #e0e0e0;
+        }
+
+        /* --- Buscador --- */
+        .search-container {
+             /* ANTES: display: none; */ /* Eliminado para que sea visible */
+            position: relative;
+            flex-grow: 1;
+            max-width: 500px; /* Mantenemos el ancho máximo del buscador */
+            margin: 0 20px;
+        }
+        .search-bar {
+            width: 100%;
+            padding: 10px 20px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        .search-bar:focus {
+            border-color: #8a2be2;
+            box-shadow: 0 2px 8px rgba(138, 43, 226, 0.2);
+        }
+
+         /* --- Resultados de Búsqueda (añadidos a group.html) --- */
+        .search-results {
+            position: absolute;
+            top: 50px; /* Ajusta si el header tiene diferente altura */
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            max-height: 400px;
+            overflow-y: auto;
+            display: none;
+            z-index: 99;
+            border: 1px solid #eee;
+            border-top: none;
+        }
+        .search-result-item {
+            padding: 12px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        .search-result-item:hover {
+            background: #f9f4ff;
+        }
+        .result-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #8a2be2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        .result-info {
+            flex-grow: 1;
+        }
+        .result-name {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+        .result-desc {
+            font-size: 13px;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .no-results {
+            padding: 20px;
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+        }
+
+
+         /* --- User Account (copiado de main.html) --- */
+         .user-account {
+             /* Estilos si los hubiera, por ahora solo texto */
+         }
+
+
+        /* --- Contenido Principal - Detalles del Grupo --- */
+        .main-content { /* Aseguramos que el contenido principal tenga margen del header */
+             padding-top: 30px; /* Ajustar si el header es más alto */
+             padding-left: 20px;
+             padding-right: 20px;
+             padding-bottom: 30px;
+             max-width: 1200px;
+             margin: 0 auto;
+        }
+        .group-detail-container {
+            max-width: 800px; /* Ancho máximo del contenido del grupo */
+            margin: 0 auto; /* Centrar el contenedor */
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden; /* Para que el borde redondeado afecte al banner */
+             margin-top: 30px; /* Espacio arriba del contenedor de detalles */
+        }
+
+        .detail-banner-area {
+            position: relative;
+            width: 100%;
+            height: 300px; /* Altura más grande para el banner */
+            background: linear-gradient(135deg, #8a2be2, #6a1b9a); /* Fondo por defecto */
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .banner-initials {
+            font-size: 60px; /* Iniciales más grandes */
+            font-weight: bold;
+            margin-bottom: 15px;
+            width: 100px; /* Tamaño del círculo */
+            height: 100px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2); /* Fondo translúcido */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .detail-group-name {
+            font-size: 32px; /* Nombre más grande */
+            font-weight: 700;
+            margin: 0 0 10px 0;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .detail-group-description-banner {
+             font-size: 16px;
+             max-width: 80%;
+             opacity: 0.9;
+             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+
+        .detail-content {
+            padding: 25px;
+        }
+
+        .detail-info-block {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+
+        .detail-info-block:last-child {
+             border-bottom: none;
+             margin-bottom: 0;
+             padding-bottom: 0;
+        }
+
+
+        .detail-label {
+            font-size: 15px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .detail-value {
+            font-size: 16px;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .detail-meta {
+            display: flex;
+            flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas pequeñas */
+            gap: 20px; /* Espacio entre los elementos meta */
+            margin-top: 15px;
+        }
+
+        .detail-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            color: #666;
+        }
+
+        .detail-join-btn {
+            display: block; /* Botón de unirse como bloque */
+            width: 100%; /* Ocupa todo el ancho disponible */
+            text-align: center;
+            background: #6a1b9a;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px; /* Espacio encima del botón */
+        }
+
+        .detail-join-btn:hover {
+            background: #5a0d8a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* --- Efectos --- */
+        .highlight {
+            background: #fffacd;
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+
+
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
+            .header {
+                flex-wrap: wrap;
+                gap: 10px;
+                padding: 10px;
+            }
+            .time-date-container {
+                order: 1;
+            }
+             .search-container {
+                 order: 3;
+                 width: 100%;
+                 margin: 10px 0 0 0;
+                 /* ANTES: display: none; */ /* Eliminado para que sea visible */
+             }
+            .user-account {
+                order: 2;
+                margin-left: auto;
+            }
+             .group-detail-container {
+                 margin: 20px 10px; /* Margen en móviles */
+             }
+             .detail-banner-area {
+                 height: 200px; /* Reducir altura en móviles */
+             }
+             .banner-initials {
+                 font-size: 40px;
+                 width: 80px;
+                 height: 80px;
+             }
+             .detail-group-name {
+                 font-size: 24px;
+             }
+             .detail-group-description-banner {
+                 font-size: 14px;
+                 max-width: 95%;
+             }
+             .detail-content {
+                 padding: 15px;
+             }
+             .detail-info-block {
+                 padding-bottom: 10px;
+             }
+             .detail-meta {
+                 gap: 10px;
+             }
+             .detail-meta-item {
+                 font-size: 14px;
+             }
+             .detail-join-btn {
+                 font-size: 16px;
+                 padding: 10px 20px;
+             }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="time-date-container">
+            <div>
+                <div class="time" id="time">00:00:00 AM</div>
+                <div class="date" id="date">08 de Abril (08/04)</div>
+            </div>
+            <button class="toggle-btn" id="toggleBtn">Simplificar</sbutton>
+        </div>
+
+        <div class="search-container" id="searchContainer">
+             <input type="text" class="search-bar" id="searchInput" placeholder="Buscar grupos...">
+             <div class="search-results" id="searchResults"></div>
+        </div>
+
+        <div class="user-account">Cuenta</div>
+    </header>
+
+    <main class="main-content">
+        <div class="group-detail-container">
+            <div class="detail-banner-area" id="detailBannerArea">
+                <div class="banner-initials" id="bannerInitials">??</div>
+                <h1 class="detail-group-name" id="detailGroupName">Cargando...</h1>
+                <p class="detail-group-description-banner" id="detailGroupDescriptionBanner"></p>
+            </div>
+            <div class="detail-content">
+                <div class="detail-info-block">
+                    <span class="detail-label">Descripción completa:</span>
+                    <p class="detail-value" id="detailGroupDescriptionFull">Cargando descripción...</p>
+                </div>
+
+                <div class="detail-meta">
+                    <div class="detail-meta-item">
+                        <span>👥</span>
+                        <span id="detailGroupMembers">Cargando miembros...</span>
+                    </div>
+                    <div class="detail-meta-item">
+                        <span>📅</span>
+                        <span id="detailGroupDate">Cargando fecha...</span>
+                    </div>
+                     <div class="detail-meta-item">
+                         <span>📍</span> <span id="detailGroupLocation">Ubicación no especificada</span> </div>
+                </div>
+
+                <button class="detail-join-btn">Unirse a este Grupo</button>
+
+                 </div>
+        </div>
+
+        <div id="error-message" style="text-align: center; margin-top: 50px; font-size: 18px; color: #d32f2f; display: none;">
+            Grupo no encontrado.
+        </div>
+
+    </main>
+
+    <script>
+        // ========== BASE DE DATOS (Inicial, si no hay nada en localStorage) ==========
+        // Para simular persistencia multi-usuario real, esto debería cargarse desde un servidor.
+        // Por ahora, seguiremos usando localStorage como un "placeholder" de fuente de datos.
+        let grupos = [
+             {
+                 id: 1,
+                 nombre: "Grupo de Prueba Inicial 1",
+                 descripcion: "Este es el primer grupo de prueba precargado. Una descripción más larga para ver cómo se ve en la página de detalles.",
+                 bannerColor: "#8a2be2",
+                 miembros: 15,
+                 fecha_creacion: "2023-11-15",
+                 activo: true,
+                 ubicacion: "Ubicación Inicial A"
+             },
+             {
+                 id: 2,
+                 nombre: "Grupo de Prueba Inicial 2",
+                 descripcion: "Este es el segundo grupo de prueba precargado. Para los fanáticos del deporte rey. Partidos semanales!",
+                 bannerColor: "#1b5e20",
+                 miembros: 42,
+                 fecha_creacion: "2023-09-10",
+                 activo: true,
+                 ubicacion: "Ubicación Inicial B"
+             }
+        ];
+
+         // ========== FUNCIONES DE PERSISTENCIA (usando localStorage - Copiado y adaptado) ==========
+         // NOTA: Estas funciones de localStorage SOLO SIMULAN persistencia local.
+         // Para persistencia multi-usuario, necesitarías Cargar/Guardar datos desde/hacia un servidor.
+
+        // Guarda el array 'grupos' en localStorage
+        function saveGroupsToLocalStorage() {
+            try {
+                const gruposString = JSON.stringify(grupos);
+                localStorage.setItem('eventConnectGroups', gruposString);
+                // console.log('Grupos guardados en localStorage.'); // Desactivado para no llenar la consola
+            } catch (e) {
+                console.error('Error al guardar grupos en localStorage:', e);
+            }
+        }
+
+        // Carga el array 'grupos' desde localStorage
+        function loadGroupsFromLocalStorage() {
+            try {
+                const gruposString = localStorage.getItem('eventConnectGroups');
+                if (gruposString) {
+                    const gruposFromStorage = JSON.parse(gruposString);
+                    if (Array.isArray(gruposFromStorage)) {
+                        grupos = gruposFromStorage; // Sobrescribe los grupos iniciales con los guardados
+                        // console.log('Grupos cargados desde localStorage en group.html.'); // Desactivado
+                    } else {
+                        console.warn('Datos en localStorage no son un array. Usando grupos iniciales.');
+                    }
+                } else {
+                    // console.log('No se encontraron grupos en localStorage. Usando grupos iniciales.'); // Desactivado
+                }
+            } catch (e) {
+                console.error('Error al cargar grupos desde localStorage en group.html:', e);
+                 console.log('Usando grupos iniciales debido a un error de carga.');
+            }
+        }
+
+
+        // ========== FUNCIONES PRINCIPALES (Copiadas y adaptadas) ==========
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            try {
+                const date = new Date(dateString);
+                if (!isNaN(date.getTime())) {
+                    return date.toLocaleDateString('es-ES', options);
+                } else {
+                     return 'Fecha inválida';
+                }
+            } catch (e) {
+                 console.error('Error al formatear fecha:', dateString, e);
+                 return 'Fecha inválida';
+            }
+        }
+
+        function loadGroupDetails(groupId) {
+             // Asegúrate de que grupos ya se cargó desde localStorage antes de llamar a esta función
+            const group = grupos.find(g => g.id === parseInt(groupId)); // Buscar el grupo por ID
+
+            const detailBannerArea = document.getElementById('detailBannerArea');
+            const bannerInitials = document.getElementById('bannerInitials');
+            const detailGroupName = document.getElementById('detailGroupName');
+            const detailGroupDescriptionBanner = document.getElementById('detailGroupDescriptionBanner');
+            const detailGroupDescriptionFull = document.getElementById('detailGroupDescriptionFull');
+            const detailGroupMembers = document.getElementById('detailGroupMembers');
+            const detailGroupDate = document.getElementById('detailGroupDate');
+            const detailGroupLocation = document.getElementById('detailGroupLocation');
+            const groupDetailContainer = document.querySelector('.group-detail-container');
+            const errorMessage = document.getElementById('error-message');
+
+            if (group) {
+                // Ocultar mensaje de error y mostrar contenido del grupo
+                errorMessage.style.display = 'none';
+                groupDetailContainer.style.display = 'block';
+
+                // Actualizar Título de la página
+                document.title = `EventConnect - ${group.nombre}`;
+
+                // Actualizar Banner
+                detailBannerArea.style.background = group.bannerColor;
+                bannerInitials.textContent = group.nombre.substring(0, Math.min(2, group.nombre.length)).toUpperCase();
+
+
+                // Actualizar Información Principal
+                detailGroupName.textContent = group.nombre;
+                detailGroupDescriptionBanner.textContent = group.descripcion.substring(0, Math.min(100, group.descripcion.length)) + (group.descripcion.length > 100 ? '...' : '');
+                detailGroupDescriptionFull.textContent = group.descripcion;
+
+                // Actualizar Meta Información
+                detailGroupMembers.textContent = `${group.miembros || 0} miembros`;
+                detailGroupDate.textContent = `Creado el ${formatDate(group.fecha_creacion)}`;
+                detailGroupLocation.textContent = group.ubicacion || 'Ubicación no especificada';
+
+
+            } else {
+                // Ocultar contenido del grupo y mostrar mensaje de error
+                groupDetailContainer.style.display = 'none';
+                errorMessage.textContent = groupId ? `Grupo con ID ${groupId} no encontrado.` : 'ID de grupo no especificado.';
+                errorMessage.style.display = 'block';
+                 document.title = 'EventConnect - Grupo no encontrado';
+            }
+        }
+
+         // ===== FUNCIÓN DESTACAR COINCIDENCIAS (Copiado) =====
+         function destacarCoincidencias(texto, busqueda) {
+             if (!busqueda || !texto) return texto;
+
+             const term = busqueda.toLowerCase();
+             const textoLower = texto.toLowerCase();
+             let resultado = '';
+             let lastIndex = 0;
+
+             // Usamos una lógica simplificada que busca y resalta todas las ocurrencias
+             // sin preocuparse tanto por los límites de palabras exactas en este caso.
+             let index = textoLower.indexOf(term);
+              while (index >= 0) {
+                  resultado += texto.substring(lastIndex, index);
+                  resultado += `<span class="highlight">${texto.substring(index, index + term.length)}</span>`;
+                  lastIndex = index + term.length;
+                  index = textoLower.indexOf(term, lastIndex);
+              }
+              resultado += texto.substring(lastIndex);
+
+             // Si no se encontró nada, devuelve el texto original.
+             if (resultado === '') {
+                 return texto;
+             }
+
+             return resultado;
+         }
+
+
+        // ========== BUSCADOR (Añadido a group.html) ==========
+        // Necesitamos el listener y la función mostrarResultadosBusqueda también aquí
+        // para que el buscador funcione en la página de detalles.
+
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.trim();
+            const searchResults = document.getElementById('searchResults');
+
+             if (searchTerm.length <= 1) {
+                 searchResults.style.display = 'none';
+                 searchResults.innerHTML = '';
+                 return;
+             }
+
+            // El buscador buscará en el array 'grupos' que ya fue cargado (desde localStorage o inicial)
+            const resultados = grupos.filter(grupo => {
+                return grupo.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                       grupo.descripcion.toLowerCase().includes(searchTerm.toLowerCase());
+            });
+
+            mostrarResultadosBusqueda(resultados, searchTerm);
+        });
+
+        function mostrarResultadosBusqueda(resultados, terminoBusqueda) {
+            const searchResults = document.getElementById('searchResults');
+            searchResults.innerHTML = '';
+
+            if (resultados.length > 0) {
+                resultados.forEach(grupo => {
+                    const item = document.createElement('div');
+                    item.className = 'search-result-item';
+
+                    const avatar = document.createElement('div');
+                    avatar.className = 'result-avatar';
+                    avatar.textContent = grupo.nombre.substring(0, Math.min(2, grupo.nombre.length)).toUpperCase();
+                    avatar.style.background = grupo.bannerColor;
+
+                    const info = document.createElement('div');
+                    info.className = 'result-info';
+
+                    const highlightedName = destacarCoincidencias(grupo.nombre, terminoBusqueda);
+                    const shortDescription = grupo.descripcion.substring(0, 60) + (grupo.descripcion.length > 60 ? '...' : '');
+                    const highlightedDesc = destacarCoincidencias(shortDescription, terminoBusqueda);
+
+
+                    info.innerHTML = `
+                        <div class="result-name">${highlightedName}</div>
+                        <div class="result-desc">${highlightedDesc}</div>
+                    `;
+
+                    item.appendChild(avatar);
+                    item.appendChild(info);
+
+                    // Navegar a group.html al hacer clic en un resultado de búsqueda
+                    item.addEventListener('click', () => {
+                        window.location.href = `group.html?id=${grupo.id}`;
+                        // Nota: Si ya estás en group.html y haces clic en otro grupo,
+                        // esta línea recargará la página group.html con el nuevo ID.
+                    });
+
+                    searchResults.appendChild(item);
+                });
+                searchResults.style.display = 'block';
+            } else {
+                searchResults.innerHTML = '<div class="no-results">No se encontraron grupos</div>';
+                searchResults.style.display = 'block';
+            }
+        }
+
+        // Cerrar resultados al hacer clic fuera
+        document.addEventListener('click', function(e) {
+            const searchContainer = document.getElementById('searchContainer');
+             const searchResults = document.getElementById('searchResults');
+            if (!searchContainer.contains(e.target)) {
+                 searchResults.style.display = 'none';
+            }
+        });
+
+
+        // ========== RELOJ (Copiado) ==========
+        let isSimplified = false;
+
+        function updateTimeAndDate() {
+            const now = new Date();
+            let hours = now.getHours();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours || 12;
+
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+
+            const timeElement = document.getElementById('time');
+            const dateElement = document.getElementById('date');
+
+            timeElement.textContent = isSimplified
+                ? `${String(hours).padStart(2, '0')}:${minutes} ${ampm}`
+                : `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
+
+            dateElement.style.display = isSimplified ? 'none' : 'block';
+
+            if (!isSimplified) {
+                const options = { month: 'long' };
+                let monthName = new Intl.DateTimeFormat('es-ES', options).format(now);
+                monthName = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+                const day = String(now.getDate()).padStart(2, '0');
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                dateElement.textContent = `${day} de ${monthName} (${day}/${month})`;
+            }
+        }
+
+        // ========== INICIALIZACIÓN ==========
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Cargar grupos desde localStorage PRIMERO
+            // NOTA: En una versión multi-usuario, esta sería la llamada para cargar
+            // los grupos desde el servidor (API REST, etc.).
+            loadGroupsFromLocalStorage(); // Usamos localStorage como simulación de fuente externa por ahora
+
+            // 2. Obtener el ID del grupo de la URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const groupId = urlParams.get('id');
+
+            // 3. Cargar los detalles del grupo usando el ID y los grupos cargados
+            if (groupId) {
+                 loadGroupDetails(groupId);
+            } else {
+                 // Si no hay ID en la URL, mostrar mensaje de error
+                 document.querySelector('.group-detail-container').style.display = 'none';
+                 document.getElementById('error-message').textContent = 'ID de grupo no especificado.';
+                 document.getElementById('error-message').style.display = 'block';
+                 document.title = 'EventConnect - Error';
+            }
+
+
+            // Iniciar reloj
+            updateTimeAndDate();
+            setInterval(updateTimeAndDate, 1000);
+
+            // Toggle botón del reloj
+            document.getElementById('toggleBtn').addEventListener('click', () => {
+                isSimplified = !isSimplified;
+                document.getElementById('toggleBtn').textContent = isSimplified ? 'Ampliar' : 'Simplificar';
+                updateTimeAndDate();
+            });
+
+            // Asociar el listener del buscador al elemento que ahora existe en group.html
+             const searchInputEl = document.getElementById('searchInput');
+             if(searchInputEl) {
+                 searchInputEl.addEventListener('input', function(e) {
+                     const searchTerm = e.target.value.trim();
+                     const searchResults = document.getElementById('searchResults');
+
+                     if (searchTerm.length <= 1) {
+                         searchResults.style.display = 'none';
+                         searchResults.innerHTML = '';
+                         return;
+                     }
+
+                     const resultados = grupos.filter(grupo => {
+                         return grupo.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                grupo.descripcion.toLowerCase().includes(searchTerm.toLowerCase());
+                     });
+
+                     mostrarResultadosBusqueda(resultados, searchTerm);
+                 });
+
+                 // Cerrar resultados al hacer clic fuera del buscador
+                 document.addEventListener('click', function(e) {
+                     const searchContainer = document.getElementById('searchContainer');
+                     const searchResults = document.getElementById('searchResults');
+                     if (!searchContainer.contains(e.target)) {
+                          searchResults.style.display = 'none';
+                     }
+                 });
+             }
+        });
+    </script>
+</body>
+</html>
